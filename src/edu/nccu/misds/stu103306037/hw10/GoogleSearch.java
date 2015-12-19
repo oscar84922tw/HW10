@@ -18,22 +18,21 @@ public class GoogleSearch {
 	private String content;
 
 	public GoogleSearch(String queryStr) {
-		// TODO Auto-generated constructor stub
+	
 		this.queryStr = queryStr;
 	}
 
+
 	private String fetchCountent() throws IOException {
-		URL url = new URL("https://www.google.com/search?=" + queryStr
-				+ "&num=100&oe=utf8");
-		URLConnection conn = url.openConnection();
-		InputStream in = conn.getInputStream();
-		BufferedReader br = new BufferedReader(new InputStreamReader(in,
-				"UTF-8"));
-		conn.setRequestProperty("user-agent", "Mozilla/5.0");
+		URL url = new URL("http://www.google.com/search?q=" + queryStr + "&num=5&oe=utf-8");
+		URLConnection conn = url.openConnection(); //URLConnection只能由URL物件生成
+		conn.setRequestProperty("user-agent", "Chrome/47.0.2526.80");
+		InputStream in =  conn.getInputStream();
+		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 		String retVal = "";
+
 		String line = null;
 		while ((line = br.readLine()) != null) {
-
 			retVal += (line + "\n");
 
 		}
@@ -42,24 +41,32 @@ public class GoogleSearch {
 	}
 
 	public HashMap<String, String> getResults() throws IOException {
+		
 		HashMap<String, String> retVal = new HashMap<>();
 		if (content == null) {
 			content = fetchCountent();
+			
 		}
-		org.jsoup.nodes.Document doc = Jsoup.parse(content);
-		org.jsoup.select.Elements divGs = doc.select("li.g");
+		Document doc = Jsoup.parse(content);
+		Elements divGs = doc.select("li.g");
 		for (Element divG : divGs) {
 			try {
+			
 				Element h3R = divG.select("h3.r").get(0);
+				
 				Element aTag = h3R.select("a").get(0);
+				
 				String title = aTag.text();
+				
 				String url = aTag.attr("herf");
 				retVal.put(title, url);
 			} catch (IndexOutOfBoundsException ex) {
-				System.out.println("google改版，檢查div.g");
+			
 			}
 
 		}
+		
 		return retVal;
+		
 	}
 }
